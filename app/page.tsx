@@ -772,7 +772,7 @@ export default function Home() {
               <Zap size={16} className="text-white" />
             </div>
             <div>
-              <h1 className="text-lg font-black tracking-tight leading-none text-neutral-900">WORKDAY</h1>
+              <h1 className="text-lg font-black tracking-tight leading-none text-neutral-900">Kristian</h1>
               <span className="text-[9px] font-bold text-[#0051db] tracking-widest uppercase">Creative Asset Creator</span>
             </div>
           </div>
