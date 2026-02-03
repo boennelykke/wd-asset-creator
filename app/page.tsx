@@ -125,11 +125,31 @@ const LAYOUTS: Record<
 };
 
 const BACKGROUNDS = [
-  { id: 'day_gradient', url: 'https://images.unsplash.com/photo-1525498128493-380d1990a112?auto=format&fit=crop&q=80' },
-  { id: 'mesh_soft', url: 'https://images.unsplash.com/photo-1614850523459-c2f4c699c52e?auto=format&fit=crop&q=80' },
-  { id: 'fluid_neon', url: 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&q=80' },
-  { id: 'clean_white', url: 'https://images.unsplash.com/photo-1595113316349-9fa4eb24f884?auto=format&fit=crop&q=80' },
-  { id: 'ethereal', url: 'https://images.unsplash.com/photo-1620641788421-7a1c3103428f?auto=format&fit=crop&q=80' }
+  {
+    id: 'workday_1',
+    url: 'https://images.unsplash.com/photo-1717510976240-6b3d7e57285a?auto=format&fit=crop&q=80', // placeholder, update with correct gradient url if self-hosted
+    style: { background: 'linear-gradient(135deg, #42C5F5 0%, #6D73F9 100%)' } // WD Blue to WD Indigo
+  },
+  {
+    id: 'workday_2',
+    url: 'https://images.unsplash.com/photo-1717511124215-17bc602b1e37?auto=format&fit=crop&q=80', // placeholder
+    style: { background: 'linear-gradient(135deg, #FDF497 0%, #FD5949 50%, #D6249F 100%)' } // Yellow-Pink-Violet (Insta style)
+  },
+  {
+    id: 'workday_3',
+    url: 'https://images.unsplash.com/photo-1717511217900-1ab1c6448d48?auto=format&fit=crop&q=80', // placeholder
+    style: { background: 'linear-gradient(120deg, #F3ECD5 0%, #F5A366 100%)' } // Light beige to apricot
+  },
+  {
+    id: 'workday_4',
+    url: 'https://images.unsplash.com/photo-1717511307289-68fa5b68552b?auto=format&fit=crop&q=80', // placeholder
+    style: { background: 'linear-gradient(110deg, #7DD3FC 0%, #38BDF8 100%)' } // Sky Blue to Blue
+  },
+  {
+    id: 'workday_5',
+    url: 'https://images.unsplash.com/photo-1717511393552-0afa6fae5e3c?auto=format&fit=crop&q=80', // placeholder
+    style: { background: 'linear-gradient(120deg, #FEB692 0%, #EA5455 100%)' } // Apricot to Red
+  }
 ];
 
 const ANIMATIONS: Record<
@@ -176,7 +196,7 @@ export default function Home() {
   
   // State
   const [isPlaying, setIsPlaying] = useState(true);
-  const [text, setText] = useState("The Future of Work is Here.");
+  const [text, setText] = useState("The future of a work day is hair.");
   
   // Design State
   const [activeColor, setActiveColor] = useState('white');
