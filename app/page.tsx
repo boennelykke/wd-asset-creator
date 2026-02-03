@@ -132,7 +132,7 @@ const BACKGROUNDS = [
   },
   {
     id: 'workday_2',
-    url: 'https://images.unsplash.com/photo-1717511124215-17bc602b1e37?auto=format&fit=crop&q=80', // placeholder
+    url: 'https://images.unsplash.com/photo-1604076850742-4c7221f3101b?q=80&w=774&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', // new background image
     style: { background: 'linear-gradient(135deg, #FDF497 0%, #FD5949 50%, #D6249F 100%)' } // Yellow-Pink-Violet (Insta style)
   },
   {
