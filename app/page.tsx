@@ -137,12 +137,12 @@ const BACKGROUNDS = [
   },
   {
     id: 'workday_3',
-    url: 'https://images.unsplash.com/photo-1717511217900-1ab1c6448d48?auto=format&fit=crop&q=80', // placeholder
+    url: '', // placeholder
     style: { background: 'linear-gradient(120deg, #F3ECD5 0%, #F5A366 100%)' } // Light beige to apricot
   },
   {
     id: 'workday_4',
-    url: 'https://images.unsplash.com/photo-1717511307289-68fa5b68552b?auto=format&fit=crop&q=80', // placeholder
+    url: 'https://images.unsplash.com/photo-1569982175971-d92b01cf8694?auto=format&fit=crop&q=80', // placeholder
     style: { background: 'linear-gradient(110deg, #7DD3FC 0%, #38BDF8 100%)' } // Sky Blue to Blue
   },
   {
