@@ -81,18 +81,25 @@ const interpolate = (frame: number, inputRange: [number, number], outputRange: [
 // --- CONSTANTS ---
 
 const BRAND_COLORS = [
-  { id: 'white', label: 'White', hex: '#ffffff' }, 
-  { id: 'dark_blue', label: 'Dark Blue', hex: '#003865' },
-  { id: 'workday_blue', label: 'Workday Blue', hex: '#0051db' },
-  { id: 'midnight', label: 'Midnight', hex: '#08112e' },
-  { id: 'obsidian', label: 'Obsidian', hex: '#111111' },
-  { id: 'sky', label: 'Sky', hex: '#3695ff' },
-  { id: 'teal', label: 'Teal', hex: '#038387' },
-  { id: 'green', label: 'Green', hex: '#1c7d41' },
-  { id: 'orange', label: 'Orange', hex: '#e66000' },
-  { id: 'red', label: 'Red', hex: '#de2e21' },
-  { id: 'berry', label: 'Berry', hex: '#a31a64' },
-  { id: 'purple', label: 'Purple', hex: '#6e3dc2' },
+  { id: 'after_hours', label: 'After Hours', hex: '#022043' },
+  { id: 'ink', label: 'Ink', hex: '#0F2E66' },
+  { id: 'ballpoint', label: 'Ballpoint', hex: '#0057AE' },
+  { id: 'water_cooler', label: 'Water Cooler', hex: '#1C98E8' },
+  { id: 'blue_sky', label: 'Blue Sky', hex: '#9ECFFF' },
+  { id: 'paper', label: 'Paper', hex: '#FFFFFF' },
+  { id: 'keyboard', label: 'Keyboard', hex: '#FCF8E8' },
+  { id: 'highlighter', label: 'Highlighter', hex: '#FFF3A8' },
+  { id: 'pencil', label: 'Pencil', hex: '#FDE65E' },
+  { id: 'lunch_break', label: 'Lunch Break', hex: '#FEC10B' },
+  { id: 'tack', label: 'Tack', hex: '#6FC9D3' },
+  { id: 'eraser', label: 'Eraser', hex: '#FFC2FD' },
+  { id: 'smoothie', label: 'Smoothie', hex: '#AB65D0' },
+  { id: 'happy_hour', label: 'Happy Hour', hex: '#FD7E00' },
+  { id: 'thumbtack', label: 'Thumbtack', hex: '#FC5B05' },
+  { id: 'business_card', label: 'Business Card', hex: '#F1F3F6' },
+  { id: 'desk', label: 'Desk', hex: '#B6C1CC' },
+  { id: 'staple', label: 'Staple', hex: '#7D8B99' },
+  { id: 'laptop', label: 'Laptop', hex: '#525D6A' },
 ];
 
 const FORMATS: Record<string, { label: string; ratio: string; h: string; desc: string }> = {
@@ -137,7 +144,7 @@ const BACKGROUNDS = [
   },
   {
     id: 'workday_3',
-    url: '', // placeholder
+    url: 'https://images.unsplash.com/photo-1706523869158-8fcf6ad998ad?q=80', // placeholder
     style: { background: 'linear-gradient(120deg, #F3ECD5 0%, #F5A366 100%)' } // Light beige to apricot
   },
   {
@@ -196,7 +203,7 @@ export default function Home() {
   
   // State
   const [isPlaying, setIsPlaying] = useState(true);
-  const [text, setText] = useState("The future of a work day is hair.");
+  const [text, setText] = useState("The future of a work day is here.");
   
   // Design State
   const [activeColor, setActiveColor] = useState('white');
@@ -275,24 +282,107 @@ export default function Home() {
     }, 100);
   };
 
-  const handleVideoExport = () => {
+  const handleVideoExport = async () => {
+    // Real video export using browser screen recording (MediaRecorder + getDisplayMedia).
+    // The user will be asked to share their screen/window/tab; choose the window with this editor.
+    if (
+      typeof navigator === 'undefined' ||
+      !navigator.mediaDevices ||
+      !navigator.mediaDevices.getDisplayMedia
+    ) {
+      // eslint-disable-next-line no-alert
+      alert('Screen recording is not supported in this browser.');
+      return;
+    }
+
     setRenderingMode('video');
     setIsRendering(true);
     setRenderProgress(0);
-    
-    let prog = 0;
-    const interval = setInterval(() => {
-      prog += 10;
-      setRenderProgress(prog);
-      if (prog >= 100) {
-        clearInterval(interval);
-        setTimeout(() => {
-          generateHTML5Export(true); // true = name it similar to video
-          setIsRendering(false);
-          setRenderingMode(null);
-        }, 500);
+
+    try {
+      const stream = await navigator.mediaDevices.getDisplayMedia({
+        video: {
+          frameRate: FPS,
+        },
+        audio: false,
+      } as MediaStreamConstraints);
+
+      // Prefer mp4 when supported, otherwise fall back to webm.
+      let mimeType = '';
+      if (typeof MediaRecorder !== 'undefined') {
+        if (MediaRecorder.isTypeSupported('video/mp4;codecs=h264')) {
+          mimeType = 'video/mp4;codecs=h264';
+        } else if (MediaRecorder.isTypeSupported('video/webm;codecs=vp9')) {
+          mimeType = 'video/webm;codecs=vp9';
+        } else if (MediaRecorder.isTypeSupported('video/webm;codecs=vp8')) {
+          mimeType = 'video/webm;codecs=vp8';
+        }
       }
-    }, 100);
+
+      if (!mimeType) {
+        stream.getTracks().forEach((t) => t.stop());
+        // eslint-disable-next-line no-alert
+        alert('This browser does not support recording to MP4/WebM.');
+        setIsRendering(false);
+        setRenderingMode(null);
+        return;
+      }
+
+      const chunks: BlobPart[] = [];
+      const recorder = new MediaRecorder(stream, { mimeType });
+
+      recorder.ondataavailable = (event) => {
+        if (event.data && event.data.size > 0) {
+          chunks.push(event.data);
+        }
+      };
+
+      recorder.onerror = () => {
+        stream.getTracks().forEach((t) => t.stop());
+        setIsRendering(false);
+        setRenderingMode(null);
+      };
+
+      recorder.start();
+
+      const totalMs = durationSec * 1000;
+      let elapsed = 0;
+
+      const progressInterval = setInterval(() => {
+        elapsed += 200;
+        const pct = Math.min(100, (elapsed / totalMs) * 100);
+        setRenderProgress(pct);
+        if (elapsed >= totalMs) {
+          clearInterval(progressInterval);
+          recorder.stop();
+        }
+      }, 200);
+
+      recorder.onstop = () => {
+        stream.getTracks().forEach((t) => t.stop());
+        const blob = new Blob(chunks, { type: mimeType });
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement('a');
+        const ext = mimeType.includes('mp4') ? 'mp4' : 'webm';
+        a.href = url;
+        a.download = `workday-asset-${activeFormat}.${ext}`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+
+        setRenderProgress(100);
+        setIsRendering(false);
+        setRenderingMode(null);
+      };
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error(err);
+      setIsRendering(false);
+      setRenderingMode(null);
+      // eslint-disable-next-line no-alert
+      alert('Failed to start screen recording. Please ensure screen sharing is allowed.');
+    }
   };
 
   // --- HTML5 EXPORT GENERATOR ---
@@ -560,7 +650,7 @@ export default function Home() {
                <div className="absolute inset-0 flex items-center justify-center z-0">
                   <div style={currentAnimStyle} className="max-w-3xl text-center">
                      <h2 className={`${commonClasses}`} 
-                         style={{ ...textStyle, ...getDynamicSize(3.5), textShadow: '0 10px 30px rgba(0,0,0,0.5)', color: 'white' }}>
+                         style={{ ...textStyle, ...getDynamicSize(2.5), textShadow: '0 10px 30px rgba(0,0,0,0.5)', color: 'white' }}>
                         {text || "Cinema"}
                      </h2>
                   </div>
@@ -792,7 +882,7 @@ export default function Home() {
               <Zap size={16} className="text-white" />
             </div>
             <div>
-              <h1 className="text-lg font-black tracking-tight leading-none text-neutral-900">Kristian</h1>
+              <h1 className="text-lg font-black tracking-tight leading-none text-neutral-800">WD Creative</h1>
               <span className="text-[9px] font-bold text-[#0051db] tracking-widest uppercase">Creative Asset Creator</span>
             </div>
           </div>
@@ -808,7 +898,7 @@ export default function Home() {
           <textarea 
             value={text}
             onChange={(e) => setText(e.target.value.slice(0, 60))}
-            className="w-full bg-[#F5F5F7] border border-neutral-200 rounded-xl p-4 text-neutral-900 focus:outline-none focus:border-blue-400 transition-all resize-none h-24 archivo font-bold text-lg leading-tight placeholder:text-neutral-300"
+            className="w-full bg-[#FCF8E8] border border-neutral-200 rounded-xl p-4 text-neutral-900 focus:outline-none focus:border-blue-400 transition-all resize-none h-24 archivo font-bold text-lg leading-tight placeholder:text-neutral-300"
             placeholder="Write something..."
           />
           
@@ -821,7 +911,7 @@ export default function Home() {
                      <button 
                        key={w}
                        onClick={() => setFontWeight(w as 'regular' | 'bold' | 'extrabold')}
-                       className={`flex-1 py-1.5 rounded-md text-[9px] font-bold uppercase transition-all ${fontWeight === w ? 'bg-white shadow-sm text-neutral-900' : 'text-neutral-400 hover:text-neutral-600'}`}
+                       className={`flex-1 py-1.5 rounded-md text-[9px] font-bold uppercase transition-all ${fontWeight === w ? 'bg-white shadow-sm text-neutral-700' : 'text-neutral-400 hover:text-neutral-600'}`}
                      >
                        {w === 'extrabold' ? 'Hvy' : w.charAt(0).toUpperCase() + w.slice(1)}
                      </button>
@@ -837,7 +927,7 @@ export default function Home() {
                      <button 
                        key={s}
                        onClick={() => setTextShadow(s as 'none' | 'soft' | 'hard')}
-                       className={`flex-1 py-1.5 rounded-md text-[9px] font-bold uppercase transition-all ${textShadow === s ? 'bg-white shadow-sm text-neutral-900' : 'text-neutral-400 hover:text-neutral-600'}`}
+                       className={`flex-1 py-1.5 rounded-md text-[6px] font-bold uppercase transition-all ${textShadow === s ? 'bg-white shadow-sm text-neutral-900' : 'text-neutral-400 hover:text-neutral-600'}`}
                      >
                        {s}
                      </button>
